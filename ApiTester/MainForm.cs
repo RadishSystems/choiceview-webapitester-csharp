@@ -129,7 +129,8 @@ namespace WebApiInterface
         {
             try
             {
-                BaseUri = new Uri("https://" + Settings.Default.ApiAddress, UriKind.Absolute);
+                BaseUri = new Uri((Settings.Default.SecureTransport ? "https://" : "http://") +
+                    Settings.Default.ApiAddress, UriKind.Absolute);
                 SessionsUri = new Uri(BaseUri, "/ivr/api/sessions");
 
                 Client = new HttpClient { BaseAddress = BaseUri };
@@ -177,12 +178,21 @@ namespace WebApiInterface
                     Client.PostAsync(SessionsUri, request.Content).ContinueWith(
                         responseTask =>
                         {
-                            if (responseTask.Result.StatusCode == HttpStatusCode.Created)
+                            if (responseTask.Exception != null)
+                            {
+                                UpdateUI(false);
+                                MessageBox.Show(String.Format("POST {0} failed!\nError: {1}",
+                                                              SessionsUri.AbsoluteUri,
+                                                              responseTask.Exception.InnerException.Message));
+                            }
+                            else if (responseTask.Result.StatusCode == HttpStatusCode.Created)
                             {
                                 SessionUri = responseTask.Result.Headers.Location;
                                 responseTask.Result.Content.ReadAsAsync<Session>(
-                                    new List<MediaTypeFormatter> {jsonFormatter}).ContinueWith(
+                                    new List<MediaTypeFormatter> { jsonFormatter }).ContinueWith(
                                         contentTask =>
+                                        {
+                                            if (contentTask.Exception == null)
                                             {
                                                 cvSession = contentTask.Result;
                                                 if (cvSession != null)
@@ -192,18 +202,30 @@ namespace WebApiInterface
                                                 else
                                                 {
                                                     MessageBox.Show(
-                                                        String.Format("POST {0} did not return recognizable content!",
-                                                                      SessionsUri.AbsoluteUri));
+                                                        String.Format(
+                                                            "POST {0} did not return recognizable content!",
+                                                            SessionsUri.AbsoluteUri));
                                                 }
-                                                UpdateUI(cvSession != null && !cvSession.status.Equals("disconnected"));
+                                                UpdateUI(cvSession != null &&
+                                                         !cvSession.status.Equals("disconnected"));
                                             }
+                                            else
+                                            {
+                                                UpdateUI(false);
+                                                MessageBox.Show(
+                                                    String.Format(
+                                                        "Cannot read the content from POST {0}\nError: {1}",
+                                                        SessionsUri.AbsoluteUri, contentTask.Exception.InnerException.Message));
+                                            }
+                                        }
                                     );
                             }
                             else
                             {
                                 UpdateUI(false);
                                 MessageBox.Show(String.Format("POST {0} failed!\nStatus Code: {1}",
-                                    SessionsUri.AbsoluteUri, responseTask.Result.StatusCode));
+                                                              SessionsUri.AbsoluteUri,
+                                                              responseTask.Result.StatusCode));
                             }
                         });
                 }
@@ -217,7 +239,12 @@ namespace WebApiInterface
                 Client.DeleteAsync(SessionUri).ContinueWith(
                     task =>
                         {
-                            if (task.Result.IsSuccessStatusCode)
+                            if (task.Exception != null)
+                            {
+                                MessageBox.Show(String.Format("DELETE {0} failed!\nError: {1}",
+                                    SessionUri.AbsoluteUri, task.Exception.InnerException.Message));
+                            }
+                            else if (task.Result.IsSuccessStatusCode)
                             {
                                 cvSession.status = "disconnected";
                                 UpdateSessionInfo(cvSession);

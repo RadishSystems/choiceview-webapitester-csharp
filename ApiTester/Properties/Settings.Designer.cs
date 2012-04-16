@@ -25,10 +25,19 @@ namespace ApiTester.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("cvnet2.radishsystems.com")]
+        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
         public string ApiAddress {
             get {
                 return ((string)(this["ApiAddress"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SecureTransport {
+            get {
+                return ((bool)(this["SecureTransport"]));
             }
         }
     }
