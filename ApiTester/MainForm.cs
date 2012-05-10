@@ -135,6 +135,15 @@ namespace WebApiInterface
 
                 Client = new HttpClient { BaseAddress = BaseUri };
                 Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                if(!string.IsNullOrWhiteSpace(Settings.Default.Username))
+                {
+                    var param =
+                        Convert.ToBase64String(
+                            System.Text.Encoding.ASCII.GetBytes(string.Format("{0}:{1}",
+                                                                              Settings.Default.Username,
+                                                                              Settings.Default.Password)));
+                    Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("basic", param);
+                }
             }
             catch (UriFormatException)
             {
