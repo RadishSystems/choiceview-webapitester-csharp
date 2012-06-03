@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
-using ApiTester.Properties;
-using Newtonsoft.Json;
-using WebApiInterface.Infrastructure;
-
-namespace WebApiInterface
+﻿namespace WebApiInterface
 {
     using System;
-    using System.Net.Http;
+    using System.Collections.Generic;
     using System.Windows.Forms;
+    using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Formatting;
+    using System.Net.Http.Headers;
+    using ApiTester.Properties;
     using Models;
 
     public partial class MainForm : Form
@@ -122,7 +119,7 @@ namespace WebApiInterface
         public MainForm()
         {
             InitializeComponent();
-            jsonFormatter = new JsonNetFormatter(new JsonSerializerSettings());
+            jsonFormatter = new JsonMediaTypeFormatter();
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -174,8 +171,6 @@ namespace WebApiInterface
                                              newMessageUri = string.Empty,
                                              stateChangeUri = string.Empty
                                          };
-                    var request = new HttpRequestMessage<NewSession>(
-                        newSession, "application/json");
 
                     Invoke((MethodInvoker)(() =>
                     {
@@ -184,7 +179,7 @@ namespace WebApiInterface
                         btnStartEndSession.Enabled = false;
                     }));
 
-                    Client.PostAsync(SessionsUri, request.Content).ContinueWith(
+                    Client.PostAsJsonAsync<NewSession>(SessionsUri.AbsoluteUri, newSession).ContinueWith(
                         responseTask =>
                         {
                             if (responseTask.Exception != null)
