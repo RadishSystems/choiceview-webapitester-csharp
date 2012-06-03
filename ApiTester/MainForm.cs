@@ -174,7 +174,7 @@
 
                     Invoke((MethodInvoker)(() =>
                     {
-                        toolStripStatusLabel1.Text = "Waiting for client...";
+                        toolStripStatusLabel1.Text = "Waiting for server at " + Settings.Default.ApiAddress + "...";
                         btnStartEndSession.Text = "Waiting";
                         btnStartEndSession.Enabled = false;
                     }));

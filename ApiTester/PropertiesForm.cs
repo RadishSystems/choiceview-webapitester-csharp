@@ -17,7 +17,7 @@ namespace WebApiInterface
             InitializeComponent();
             foreach (var pair in pairs)
             {
-                PropertiesList.Items.Add(String.Format("{0}={1}", pair.Key, pair.Value));
+                PropertiesList.Items.Add(String.Format(pair.ToString()));
             }
         }
     }
