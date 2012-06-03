@@ -267,13 +267,65 @@
             UpdateSession();
         }
 
+        private void ShowProperties(Payload info)
+        {
+            Invoke((MethodInvoker) (() =>
+                                        {
+                                            var form = new PropertiesForm(info);
+                                            form.ShowDialog(this);
+                                            form.Dispose();
+                                        }));
+        }
+       
         private void btnGetProperties_Click(object sender, EventArgs e)
         {
-            if(cvSession != null && cvSession.properties != null)
+            if (SessionPropertiesUri != null)
             {
-                var form = new PropertiesForm(cvSession.properties);
-                form.ShowDialog(this);
-                form.Dispose();
+                Client.GetAsync(SessionPropertiesUri).ContinueWith(
+                    responseTask =>
+                    {
+                        if (responseTask.Result.IsSuccessStatusCode)
+                        {
+                            responseTask.Result.Content.ReadAsAsync<Models.Properties>(
+                                new List<MediaTypeFormatter> { jsonFormatter }).ContinueWith(
+                                contentTask =>
+                                    {
+                                        Models.Properties clientInfo = contentTask.Result;
+                                        if (clientInfo != null && clientInfo.properties != null)
+                                        {
+                                            ShowProperties(clientInfo.properties);
+                                        }
+                                        else
+                                        {
+                                            MessageBox.Show(String.Format("GET {0} did not return recognizable content!",
+                                                                          SessionPropertiesUri.AbsoluteUri));
+                                        }
+                                    });
+                        }
+                        else
+                        {
+                            switch (responseTask.Result.StatusCode)
+                            {
+                                case HttpStatusCode.NotFound:
+                                    MessageBox.Show(String.Format("{0} was not found!", SessionPropertiesUri.AbsoluteUri));
+                                    break;
+                                case HttpStatusCode.NotModified:
+                                    if (cvSession != null && cvSession.properties != null)
+                                    {
+                                        ShowProperties(cvSession.properties);
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("No properties to show!");
+                                    }
+                                    break;
+                                default:
+                                    MessageBox.Show(String.Format("GET {0} failed!\nStatus Code: {1}",
+                                                                  SessionPropertiesUri.AbsoluteUri, responseTask.Result.StatusCode));
+                                    break;
+                            }
+                        }
+                    });
             }
         }
     }
