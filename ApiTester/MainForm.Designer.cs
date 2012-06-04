@@ -240,6 +240,7 @@
             this.btnSendUrl.TabIndex = 7;
             this.btnSendUrl.Text = "Send Url";
             this.btnSendUrl.UseVisualStyleBackColor = true;
+            this.btnSendUrl.Click += new System.EventHandler(this.btnSendUrl_Click);
             // 
             // btnSendText
             // 
@@ -249,6 +250,7 @@
             this.btnSendText.TabIndex = 8;
             this.btnSendText.Text = "Send Text";
             this.btnSendText.UseVisualStyleBackColor = true;
+            this.btnSendText.Click += new System.EventHandler(this.btnSendText_Click);
             // 
             // timer1
             // 

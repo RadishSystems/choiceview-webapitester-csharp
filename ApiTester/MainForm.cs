@@ -26,8 +26,8 @@
                 () =>
                 {
                     btnGetProperties.Enabled = SessionPropertiesUri != null && connected;
-                    btnSendUrl.Enabled = false;
-                    btnSendText.Enabled = false;
+                    btnSendUrl.Enabled = SessionUri != null && connected;
+                    btnSendText.Enabled = SessionUri != null && connected;
                     btnStartEndSession.Text = connected ? "End Session" : "Start Session";
                     if (!btnStartEndSession.Enabled) btnStartEndSession.Enabled = true;
                     timer1.Enabled = connected;
@@ -327,6 +327,56 @@
                         }
                     });
             }
+        }
+
+        private void btnSendText_Click(object sender, EventArgs e)
+        {
+            if (SessionUri != null)
+            {
+                Client.PostAsync(SessionUri, new StringContent("Test Message sent at " + DateTime.Now)).ContinueWith(
+                    task =>
+                        {
+                            if (task.Exception != null)
+                            {
+                                UpdateUI(false);
+                                MessageBox.Show(String.Format("POST {0} text/plain failed!\nError: {1}",
+                                                              SessionUri.AbsoluteUri,
+                                                              task.Exception.InnerException.Message));
+                            }
+                            else if (!task.Result.IsSuccessStatusCode)
+                            {
+                                MessageBox.Show(String.Format("Post {0} text/plain failed!\nStatus Code: {1}",
+                                    SessionUri.AbsoluteUri, task.Result.StatusCode));
+                            }
+                        });
+            }
+        }
+
+        private void btnSendUrl_Click(object sender, EventArgs e)
+        {
+            if (SessionUri != null)
+            {
+                var clientUrl = new ClientUrl();
+                clientUrl.url = "http://www.radishsystems.com";
+
+                Client.PostAsJsonAsync<ClientUrl>(SessionUri.AbsoluteUri, clientUrl).ContinueWith(
+                    task =>
+                    {
+                        if (task.Exception != null)
+                        {
+                            UpdateUI(false);
+                            MessageBox.Show(String.Format("POST {0} application/json failed!\nError: {1}",
+                                                          SessionUri.AbsoluteUri,
+                                                          task.Exception.InnerException.Message));
+                        }
+                        else if (!task.Result.IsSuccessStatusCode)
+                        {
+                            MessageBox.Show(String.Format("Post {0} application/json failed!\nStatus Code: {1}",
+                                SessionUri.AbsoluteUri, task.Result.StatusCode));
+                        }
+                    });
+            }
+
         }
     }
 }
