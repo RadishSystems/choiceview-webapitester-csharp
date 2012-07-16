@@ -12,7 +12,7 @@
       <Value Profile="(Default)">demo</Value>
     </Setting>
     <Setting Name="Password" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">radish11</Value>
+      <Value Profile="(Default)">radisH1!</Value>
     </Setting>
   </Settings>
 </SettingsFile>
