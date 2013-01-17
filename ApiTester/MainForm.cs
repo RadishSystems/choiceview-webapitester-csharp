@@ -183,7 +183,7 @@
                         btnStartEndSession.Enabled = false;
                     }));
 
-                    Client.PostAsJsonAsync<NewSession>(SessionsUri.AbsoluteUri, newSession).ContinueWith(
+                    Client.PostAsJsonAsync(SessionsUri.AbsoluteUri, newSession).ContinueWith(
                         responseTask =>
                         {
                             if (responseTask.Exception != null)
@@ -278,11 +278,11 @@
             UpdateSession();
         }
 
-        private void ShowProperties(Payload info)
+        private void ShowProperties()
         {
             Invoke((MethodInvoker) (() =>
                                         {
-                                            var form = new PropertiesForm(info);
+                                            var form = new PropertiesForm(Client, SessionPropertiesUri, jsonFormatter);
                                             form.ShowDialog(this);
                                             form.Dispose();
                                         }));
@@ -290,58 +290,7 @@
        
         private void btnGetProperties_Click(object sender, EventArgs e)
         {
-            if (SessionPropertiesUri != null)
-            {
-                Client.GetAsync(SessionPropertiesUri).ContinueWith(
-                    responseTask =>
-                    {
-                        if (responseTask.Result.IsSuccessStatusCode)
-                        {
-                            responseTask.Result.Content.ReadAsAsync<Models.Properties>(
-                                new List<MediaTypeFormatter> { jsonFormatter }).ContinueWith(
-                                contentTask =>
-                                    {
-                                        Models.Properties clientInfo = contentTask.Result;
-                                        if (clientInfo != null && clientInfo.properties != null)
-                                        {
-                                            ShowProperties(clientInfo.properties);
-                                        }
-                                        else
-                                        {
-                                            MessageBox.Show(String.Format("GET {0} did not return recognizable content!",
-                                                                          SessionPropertiesUri.AbsoluteUri));
-                                        }
-                                    });
-                        }
-                        else
-                        {
-                            switch (responseTask.Result.StatusCode)
-                            {
-                                case HttpStatusCode.NotFound:
-                                    MessageBox.Show(String.Format("{0} was not found!", SessionPropertiesUri.AbsoluteUri));
-                                    break;
-                                case HttpStatusCode.NotModified:
-                                    if (cvSession != null && cvSession.properties != null)
-                                    {
-                                        ShowProperties(cvSession.properties);
-                                    }
-                                    else
-                                    {
-                                        MessageBox.Show("No properties to show!");
-                                    }
-                                    break;
-                                default:
-                                    var msg = responseTask.Result.Content.ReadAsStringAsync().Result;
-                                    MessageBox.Show(String.Format("GET {0} failed!\nReason - {1}, {2}\n{3}",
-                                                                  SessionPropertiesUri.AbsoluteUri,
-                                                                  responseTask.Result.StatusCode,
-                                                                  responseTask.Result.ReasonPhrase,
-                                                                  msg));
-                                    break;
-                            }
-                        }
-                    });
-            }
+            ShowProperties();
         }
 
         private void btnSendText_Click(object sender, EventArgs e)
@@ -375,10 +324,9 @@
         {
             if (SessionUri != null)
             {
-                var clientUrl = new ClientUrl();
-                clientUrl.url = "http://www.radishsystems.com";
+                var clientUrl = new ClientUrl {url = "http://www.radishsystems.com"};
 
-                Client.PostAsJsonAsync<ClientUrl>(SessionUri.AbsoluteUri, clientUrl).ContinueWith(
+                Client.PostAsJsonAsync(SessionUri.AbsoluteUri, clientUrl).ContinueWith(
                     task =>
                     {
                         if (task.Exception != null)

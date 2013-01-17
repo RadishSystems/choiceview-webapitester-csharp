@@ -43,13 +43,13 @@
             // 
             // btnAddProperty
             // 
-            this.btnAddProperty.Enabled = false;
-            this.btnAddProperty.Location = new System.Drawing.Point(12, 205);
+            this.btnAddProperty.Location = new System.Drawing.Point(12, 204);
             this.btnAddProperty.Name = "btnAddProperty";
             this.btnAddProperty.Size = new System.Drawing.Size(81, 23);
             this.btnAddProperty.TabIndex = 1;
             this.btnAddProperty.Text = "Add Property";
             this.btnAddProperty.UseVisualStyleBackColor = true;
+            this.btnAddProperty.Click += new System.EventHandler(this.btnAddProperty_Click);
             // 
             // btnCancel
             // 
@@ -58,14 +58,14 @@
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(81, 23);
             this.btnCancel.TabIndex = 2;
-            this.btnCancel.Text = "Cancel";
+            this.btnCancel.Text = "Close";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
             // PropertiesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(200, 234);
+            this.ClientSize = new System.Drawing.Size(201, 230);
             this.ControlBox = false;
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnAddProperty);
@@ -75,6 +75,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "Session Properties";
+            this.Load += new System.EventHandler(this.PropertiesForm_Load);
             this.ResumeLayout(false);
 
         }
