@@ -26,8 +26,11 @@
                 () =>
                 {
                     btnGetProperties.Enabled = SessionPropertiesUri != null && connected;
-                    btnSendUrl.Enabled = SessionUri != null && connected;
-                    btnSendText.Enabled = SessionUri != null && connected;
+                    bool activeSession = SessionUri != null && connected;
+                    btnSendUrl.Enabled = activeSession;
+                    btnSendText.Enabled = activeSession;
+                    btnGetControlMessage.Enabled = activeSession;
+                    btnTransfer.Enabled = activeSession;
                     btnStartEndSession.Text = connected ? "End Session" : "Start Session";
                     if (!btnStartEndSession.Enabled) btnStartEndSession.Enabled = true;
                     timer1.Enabled = connected;
@@ -348,6 +351,85 @@
                     });
             }
 
+        }
+
+        private void btnGetControlMessage_Click(object sender, EventArgs e)
+        {
+            if (SessionUri != null)
+            {
+                try
+                {
+                    var controlMessageUri = new Uri(SessionUri.AbsoluteUri + "/controlmessage");
+                    Client.GetAsync(controlMessageUri).ContinueWith(
+                        task =>
+                            {
+                                if (task.Exception != null)
+                                {
+                                    UpdateUI(false);
+                                    MessageBox.Show(String.Format("GET {0} failed!\nError: {1}",
+                                                                  controlMessageUri.AbsoluteUri,
+                                                                  task.Exception.InnerException.Message));
+                                }
+                                if (!task.Result.IsSuccessStatusCode)
+                                {
+                                    var msg = task.Result.Content.ReadAsStringAsync().Result;
+                                    MessageBox.Show(String.Format("GET {0} failed!\nReason - {1}, {2}\n{3}",
+                                                                    controlMessageUri.AbsoluteUri,
+                                                                    task.Result.StatusCode,
+                                                                    task.Result.ReasonPhrase,
+                                                                    msg));
+                                }
+                                else if (task.Result.StatusCode == HttpStatusCode.NoContent)
+                                {
+                                    MessageBox.Show("No message available!");
+                                }
+                                else
+                                {
+                                    var msg = task.Result.Content.ReadAsStringAsync().Result;
+                                    MessageBox.Show(String.Format("Control Message received:\n{0}", msg));
+                                }
+                            });
+                }
+                catch (UriFormatException exception)
+                {
+                    MessageBox.Show(exception.Message);
+                }
+            }
+        }
+
+        private void btnTransfer_Click(object sender, EventArgs e)
+        {
+            if (SessionUri != null)
+            {
+                try
+                {
+                    var transferUri = new Uri(SessionUri.AbsoluteUri + "/transfer/radish1");
+                    Client.PostAsync(transferUri, new StringContent("Transfer requested at " + DateTime.Now)).ContinueWith(
+                        task =>
+                            {
+                                if (task.Exception != null)
+                                {
+                                    UpdateUI(false);
+                                    MessageBox.Show(String.Format("POST {0} failed!\nError: {1}",
+                                                                  transferUri.AbsoluteUri,
+                                                                  task.Exception.InnerException.Message));
+                                }
+                                else if (!task.Result.IsSuccessStatusCode)
+                                {
+                                    var msg = task.Result.Content.ReadAsStringAsync().Result;
+                                    MessageBox.Show(String.Format("POST {0} failed!\nReason - {1}, {2}\n{3}",
+                                                                  transferUri.AbsoluteUri,
+                                                                  task.Result.StatusCode,
+                                                                  task.Result.ReasonPhrase,
+                                                                  msg));
+                                }
+                            });
+                }
+                catch (UriFormatException exception)
+                {
+                    MessageBox.Show(exception.Message);
+                }
+            }
         }
     }
 }
