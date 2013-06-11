@@ -192,9 +192,20 @@
                             if (responseTask.Exception != null)
                             {
                                 UpdateUI(false);
-                                MessageBox.Show(String.Format("POST {0} failed!\nError: {1}",
-                                                              SessionsUri.AbsoluteUri,
-                                                              responseTask.Exception.InnerException.Message));
+                                if (responseTask.Exception.InnerException is HttpRequestException)
+                                {
+                                    var requestException = responseTask.Exception.InnerException;
+                                    MessageBox.Show(String.Format("POST {0} failed!\n{1}",
+                                                                  SessionsUri.AbsoluteUri,
+                                                                  requestException.InnerException.Message));
+
+                                }
+                                else
+                                {
+                                    MessageBox.Show(String.Format("POST {0} failed!\nError: {1}",
+                                                                  SessionsUri.AbsoluteUri,
+                                                                  responseTask.Exception.InnerException.Message));
+                                }
                             }
                             else if (responseTask.Result.StatusCode == HttpStatusCode.Created)
                             {
@@ -255,8 +266,20 @@
                         {
                             if (task.Exception != null)
                             {
-                                MessageBox.Show(String.Format("DELETE {0} failed!\nError: {1}",
-                                    SessionUri.AbsoluteUri, task.Exception.InnerException.Message));
+                                if (task.Exception.InnerException is HttpRequestException)
+                                {
+                                    var requestException = task.Exception.InnerException;
+                                    MessageBox.Show(String.Format("DELETE {0} failed!\n{1}",
+                                                                  SessionUri.AbsoluteUri,
+                                                                  requestException.InnerException.Message));
+
+                                }
+                                else
+                                {
+                                    MessageBox.Show(String.Format("DELETE {0} failed!\nError: {1}",
+                                                                  SessionUri.AbsoluteUri,
+                                                                  task.Exception.InnerException.Message));
+                                }
                             }
                             else if (task.Result.IsSuccessStatusCode)
                             {
@@ -306,9 +329,20 @@
                             if (task.Exception != null)
                             {
                                 UpdateUI(false);
-                                MessageBox.Show(String.Format("POST {0} text/plain failed!\nError: {1}",
-                                                              SessionUri.AbsoluteUri,
-                                                              task.Exception.InnerException.Message));
+                                if (task.Exception.InnerException is HttpRequestException)
+                                {
+                                    var requestException = task.Exception.InnerException;
+                                    MessageBox.Show(String.Format("POST {0} text/plain failed!\n{1}",
+                                                                  SessionUri.AbsoluteUri,
+                                                                  requestException.InnerException.Message));
+
+                                }
+                                else
+                                {
+                                    MessageBox.Show(String.Format("POST {0} text/plain failed!\nError: {1}",
+                                                                  SessionUri.AbsoluteUri,
+                                                                  task.Exception.InnerException.Message));
+                                }
                             }
                             else if (!task.Result.IsSuccessStatusCode)
                             {
@@ -335,9 +369,20 @@
                         if (task.Exception != null)
                         {
                             UpdateUI(false);
-                            MessageBox.Show(String.Format("POST {0} application/json failed!\nError: {1}",
-                                                          SessionUri.AbsoluteUri,
-                                                          task.Exception.InnerException.Message));
+                            if (task.Exception.InnerException is HttpRequestException)
+                            {
+                                var requestException = task.Exception.InnerException;
+                                MessageBox.Show(String.Format("POST {0} application/json failed!\n{1}",
+                                                              SessionUri.AbsoluteUri,
+                                                              requestException.InnerException.Message));
+
+                            }
+                            else
+                            {
+                                MessageBox.Show(String.Format("POST {0} application/json failed!\nError: {1}",
+                                                              SessionUri.AbsoluteUri,
+                                                              task.Exception.InnerException.Message));
+                            }
                         }
                         else if (!task.Result.IsSuccessStatusCode)
                         {
@@ -366,9 +411,20 @@
                                 if (task.Exception != null)
                                 {
                                     UpdateUI(false);
-                                    MessageBox.Show(String.Format("GET {0} failed!\nError: {1}",
-                                                                  controlMessageUri.AbsoluteUri,
-                                                                  task.Exception.InnerException.Message));
+                                    if (task.Exception.InnerException is HttpRequestException)
+                                    {
+                                        var requestException = task.Exception.InnerException;
+                                        MessageBox.Show(String.Format("GET {0} failed!\n{1}",
+                                                                      controlMessageUri.AbsoluteUri,
+                                                                      requestException.InnerException.Message));
+
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show(String.Format("GET {0} failed!\nError: {1}",
+                                                                      controlMessageUri.AbsoluteUri,
+                                                                      task.Exception.InnerException.Message));
+                                    }
                                 }
                                 if (!task.Result.IsSuccessStatusCode)
                                 {
@@ -410,9 +466,20 @@
                                 if (task.Exception != null)
                                 {
                                     UpdateUI(false);
-                                    MessageBox.Show(String.Format("POST {0} failed!\nError: {1}",
-                                                                  transferUri.AbsoluteUri,
-                                                                  task.Exception.InnerException.Message));
+                                    if (task.Exception.InnerException is HttpRequestException)
+                                    {
+                                        var requestException = task.Exception.InnerException;
+                                        MessageBox.Show(String.Format("POST {0} failed!\n{1}",
+                                                                      transferUri.AbsoluteUri,
+                                                                      requestException.InnerException.Message));
+
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show(String.Format("POST {0} failed!\nError: {1}",
+                                                                      transferUri.AbsoluteUri,
+                                                                      task.Exception.InnerException.Message));
+                                    }
                                 }
                                 else if (!task.Result.IsSuccessStatusCode)
                                 {
