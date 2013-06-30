@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Windows.Forms;
     using System.Net;
     using System.Net.Http;
@@ -45,7 +46,7 @@
                 {
                     if (!session.status.Equals("disconnected"))
                     {
-                        txtSessionID.Text = session.sessionId.ToString();
+                        txtSessionID.Text = session.sessionId.ToString(CultureInfo.InvariantCulture);
                         txtIvrID.Text = session.callId;
                         txtNetworkType.Text = session.networkType;
                         txtStatus.Text = session.status;
@@ -111,12 +112,10 @@
                             case HttpStatusCode.NotModified:
                                 break;
                             default:
-                                var msg = responseTask.Result.Content.ReadAsStringAsync().Result;
-                                MessageBox.Show(String.Format("GET {0} failed!\nReason - {1}, {2}\n{3}",
+                                MessageBox.Show(String.Format("GET {0} failed!\n{2} ({1})",
                                                               SessionUri.AbsoluteUri,
-                                                              responseTask.Result.StatusCode,
-                                                              responseTask.Result.ReasonPhrase,
-                                                              msg));
+                                                              Convert.ToInt16(responseTask.Result.StatusCode),
+                                                              responseTask.Result.ReasonPhrase));
                                 break;
                         }
                     }
@@ -245,12 +244,10 @@
                             else
                             {
                                 UpdateUI(false);
-                                var msg = responseTask.Result.Content.ReadAsStringAsync().Result;
-                                MessageBox.Show(String.Format("POST {0} failed!\nReason - {1}, {2}\n{3}",
+                                MessageBox.Show(String.Format("POST {0} failed!\n{2} ({1})",
                                                               SessionsUri.AbsoluteUri,
-                                                              responseTask.Result.StatusCode,
-                                                              responseTask.Result.ReasonPhrase,
-                                                              msg));
+                                                              Convert.ToInt16(responseTask.Result.StatusCode),
+                                                              responseTask.Result.ReasonPhrase));
                             }
                         });
                 }
@@ -288,12 +285,10 @@
                             }
                             else
                             {
-                                var msg = task.Result.Content.ReadAsStringAsync().Result;
-                                MessageBox.Show(String.Format("DELETE {0} failed!\nReason - {1}, {2}\n{3}",
+                                MessageBox.Show(String.Format("DELETE {0} failed!\n{2} ({1})",
                                     SessionUri.AbsoluteUri,
-                                    task.Result.StatusCode,
-                                    task.Result.ReasonPhrase,
-                                    msg));
+                                    Convert.ToInt16(task.Result.StatusCode),
+                                    task.Result.ReasonPhrase));
                             }
                         });
             }
@@ -346,12 +341,10 @@
                             }
                             else if (!task.Result.IsSuccessStatusCode)
                             {
-                                var msg = task.Result.Content.ReadAsStringAsync().Result;
-                                MessageBox.Show(String.Format("Post {0} text/plain failed!\nReason - {1}, {2}\n{3}",
+                                MessageBox.Show(String.Format("Post {0} text/plain failed!\n{2}: ({1})",
                                     SessionUri.AbsoluteUri,
-                                    task.Result.StatusCode,
-                                    task.Result.ReasonPhrase,
-                                    msg));
+                                    Convert.ToInt16(task.Result.StatusCode),
+                                    task.Result.ReasonPhrase));
                             }
                         });
             }
@@ -386,12 +379,10 @@
                         }
                         else if (!task.Result.IsSuccessStatusCode)
                         {
-                            var msg = task.Result.Content.ReadAsStringAsync().Result;
-                            MessageBox.Show(String.Format("Post {0} application/json failed!\nReason - {1}, {2}\n{3}",
+                            MessageBox.Show(String.Format("Post {0} application/json failed!\n{2} ({1})",
                                 SessionUri.AbsoluteUri,
-                                task.Result.StatusCode,
-                                task.Result.ReasonPhrase,
-                                msg));
+                                Convert.ToInt16(task.Result.StatusCode),
+                                task.Result.ReasonPhrase));
                         }
                     });
             }
@@ -428,12 +419,10 @@
                                 }
                                 if (!task.Result.IsSuccessStatusCode)
                                 {
-                                    var msg = task.Result.Content.ReadAsStringAsync().Result;
-                                    MessageBox.Show(String.Format("GET {0} failed!\nReason - {1}, {2}\n{3}",
+                                    MessageBox.Show(String.Format("GET {0} failed!\n{2} ({1})",
                                                                     controlMessageUri.AbsoluteUri,
-                                                                    task.Result.StatusCode,
-                                                                    task.Result.ReasonPhrase,
-                                                                    msg));
+                                                                    Convert.ToInt16(task.Result.StatusCode),
+                                                                    task.Result.ReasonPhrase));
                                 }
                                 else if (task.Result.StatusCode == HttpStatusCode.NoContent)
                                 {
@@ -483,12 +472,10 @@
                                 }
                                 else if (!task.Result.IsSuccessStatusCode)
                                 {
-                                    var msg = task.Result.Content.ReadAsStringAsync().Result;
-                                    MessageBox.Show(String.Format("POST {0} failed!\nReason - {1}, {2}\n{3}",
+                                    MessageBox.Show(String.Format("POST {0} failed!\n{2}: ({1})",
                                                                   transferUri.AbsoluteUri,
-                                                                  task.Result.StatusCode,
-                                                                  task.Result.ReasonPhrase,
-                                                                  msg));
+                                                                  Convert.ToInt16(task.Result.StatusCode),
+                                                                  task.Result.ReasonPhrase));
                                 }
                             });
                 }
