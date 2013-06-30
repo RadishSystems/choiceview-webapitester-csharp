@@ -78,12 +78,38 @@
                 }));
         }
 
+        private void displayHttpRequestError(AggregateException ex, String errId)
+        {
+            if (ex.InnerException is HttpRequestException)
+            {
+                MessageBox.Show(String.Format("{0}\nError: {1}\n{2}",
+                                              errId, ex.InnerException.Message,
+                                              ex.InnerException.InnerException.Message));
+            }
+            else
+            {
+                MessageBox.Show(String.Format("{0}\nError: {1}",
+                                              errId, ex.InnerException.Message));
+            }
+        }
+
+        private void displayHttpResponseError(HttpResponseMessage msg, String errId)
+        {
+            MessageBox.Show(String.Format("{0}\n{2} ({1})",
+                            errId, Convert.ToInt16(msg.StatusCode), msg.ReasonPhrase));
+        }
+
         private void UpdateSession()
         {
             Client.GetAsync(SessionUri).ContinueWith(
                 responseTask =>
                 {
-                    if (responseTask.Result.IsSuccessStatusCode)
+                    var errId = String.Format("GET {0} failed!", SessionUri.AbsoluteUri);
+                    if (responseTask.Exception != null)
+                    {
+                        displayHttpRequestError(responseTask.Exception, errId);
+                    }
+                    else if (responseTask.Result.IsSuccessStatusCode)
                     {
                         responseTask.Result.Content.ReadAsAsync<Session>(
                             new List<MediaTypeFormatter> { jsonFormatter }).ContinueWith(
@@ -112,10 +138,7 @@
                             case HttpStatusCode.NotModified:
                                 break;
                             default:
-                                MessageBox.Show(String.Format("GET {0} failed!\n{2} ({1})",
-                                                              SessionUri.AbsoluteUri,
-                                                              Convert.ToInt16(responseTask.Result.StatusCode),
-                                                              responseTask.Result.ReasonPhrase));
+                                displayHttpResponseError(responseTask.Result, errId);
                                 break;
                         }
                     }
@@ -188,23 +211,11 @@
                     Client.PostAsJsonAsync(SessionsUri.AbsoluteUri, newSession).ContinueWith(
                         responseTask =>
                         {
+                            var errId = String.Format("POST {0} failed!", SessionsUri.AbsoluteUri);
                             if (responseTask.Exception != null)
                             {
                                 UpdateUI(false);
-                                if (responseTask.Exception.InnerException is HttpRequestException)
-                                {
-                                    MessageBox.Show(String.Format("POST {0} failed!\nError: {1}\n{2}",
-                                                                  SessionsUri.AbsoluteUri,
-                                                                  responseTask.Exception.InnerException.Message,
-                                                                  responseTask.Exception.InnerException.InnerException
-                                                                              .Message));
-                                }
-                                else
-                                {
-                                    MessageBox.Show(String.Format("POST {0} failed!\nError: {1}",
-                                                                  SessionsUri.AbsoluteUri,
-                                                                  responseTask.Exception.InnerException.Message));
-                                }
+                                displayHttpRequestError(responseTask.Exception, errId);
                             }
                             else if (responseTask.Result.StatusCode == HttpStatusCode.Created)
                             {
@@ -244,10 +255,7 @@
                             else
                             {
                                 UpdateUI(false);
-                                MessageBox.Show(String.Format("POST {0} failed!\n{2} ({1})",
-                                                              SessionsUri.AbsoluteUri,
-                                                              Convert.ToInt16(responseTask.Result.StatusCode),
-                                                              responseTask.Result.ReasonPhrase));
+                                displayHttpResponseError(responseTask.Result, errId);
                             }
                         });
                 }
@@ -261,34 +269,17 @@
                 Client.DeleteAsync(SessionUri).ContinueWith(
                     task =>
                         {
+                            var errId = String.Format("DELETE {0} failed!", SessionUri.AbsoluteUri);
                             if (task.Exception != null)
                             {
-                                if (task.Exception.InnerException is HttpRequestException)
-                                {
-                                    MessageBox.Show(String.Format("DELETE {0} failed!\nError: {1}\n{2}",
-                                                                  SessionUri.AbsoluteUri,
-                                                                  task.Exception.InnerException.Message,
-                                                                  task.Exception.InnerException.InnerException.Message));
-                                }
-                                else
-                                {
-                                    MessageBox.Show(String.Format("DELETE {0} failed!\nError: {1}",
-                                                                  SessionUri.AbsoluteUri,
-                                                                  task.Exception.InnerException.Message));
-                                }
+                                displayHttpRequestError(task.Exception, errId);
                             }
                             else if (task.Result.IsSuccessStatusCode)
                             {
                                 cvSession.status = "disconnected";
                                 UpdateSessionInfo(cvSession);
                             }
-                            else
-                            {
-                                MessageBox.Show(String.Format("DELETE {0} failed!\n{2} ({1})",
-                                    SessionUri.AbsoluteUri,
-                                    Convert.ToInt16(task.Result.StatusCode),
-                                    task.Result.ReasonPhrase));
-                            }
+                            else displayHttpResponseError(task.Result, errId);
                         });
             }
         }
@@ -320,29 +311,15 @@
                 Client.PostAsync(SessionUri, new StringContent("Test Message sent at " + DateTime.Now)).ContinueWith(
                     task =>
                         {
+                            var errId = String.Format("POST {0} text/plain failed!", SessionUri.AbsoluteUri);
                             if (task.Exception != null)
                             {
                                 UpdateUI(false);
-                                if (task.Exception.InnerException is HttpRequestException)
-                                {
-                                    MessageBox.Show(String.Format("POST {0} text/plain failed!\nError: {1}\n{2}",
-                                                                  SessionUri.AbsoluteUri,
-                                                                  task.Exception.InnerException.Message,
-                                                                  task.Exception.InnerException.InnerException.Message));
-                                }
-                                else
-                                {
-                                    MessageBox.Show(String.Format("POST {0} text/plain failed!\nError: {1}",
-                                                                  SessionUri.AbsoluteUri,
-                                                                  task.Exception.InnerException.Message));
-                                }
+                                displayHttpRequestError(task.Exception, errId);
                             }
                             else if (!task.Result.IsSuccessStatusCode)
                             {
-                                MessageBox.Show(String.Format("Post {0} text/plain failed!\n{2}: ({1})",
-                                    SessionUri.AbsoluteUri,
-                                    Convert.ToInt16(task.Result.StatusCode),
-                                    task.Result.ReasonPhrase));
+                                displayHttpResponseError(task.Result, errId);
                             }
                         });
             }
@@ -357,29 +334,15 @@
                 Client.PostAsJsonAsync(SessionUri.AbsoluteUri, clientUrl).ContinueWith(
                     task =>
                     {
+                        var errId = String.Format("POST {0} application/json failed!", SessionUri.AbsoluteUri);
                         if (task.Exception != null)
                         {
                             UpdateUI(false);
-                            if (task.Exception.InnerException is HttpRequestException)
-                            {
-                                MessageBox.Show(String.Format("POST {0} application/json failed!\nError: {1}\n{2}",
-                                                              SessionUri.AbsoluteUri,
-                                                              task.Exception.InnerException.Message,
-                                                              task.Exception.InnerException.InnerException.Message));
-                            }
-                            else
-                            {
-                                MessageBox.Show(String.Format("POST {0} application/json failed!\nError: {1}",
-                                                              SessionUri.AbsoluteUri,
-                                                              task.Exception.InnerException.Message));
-                            }
+                            displayHttpRequestError(task.Exception, errId);
                         }
                         else if (!task.Result.IsSuccessStatusCode)
                         {
-                            MessageBox.Show(String.Format("Post {0} application/json failed!\n{2} ({1})",
-                                SessionUri.AbsoluteUri,
-                                Convert.ToInt16(task.Result.StatusCode),
-                                task.Result.ReasonPhrase));
+                            displayHttpResponseError(task.Result, errId);
                         }
                     });
             }
@@ -396,29 +359,15 @@
                     Client.GetAsync(controlMessageUri).ContinueWith(
                         task =>
                             {
+                                var errId = String.Format("GET {0} failed!", controlMessageUri.AbsoluteUri);
                                 if (task.Exception != null)
                                 {
                                     UpdateUI(false);
-                                    if (task.Exception.InnerException is HttpRequestException)
-                                    {
-                                        MessageBox.Show(String.Format("GET {0} failed!\nError: {1}\n{2}",
-                                                                      controlMessageUri.AbsoluteUri,
-                                                                      task.Exception.InnerException.Message,
-                                                                      task.Exception.InnerException.InnerException.Message));
-                                    }
-                                    else
-                                    {
-                                        MessageBox.Show(String.Format("GET {0} failed!\nError: {1}",
-                                                                      controlMessageUri.AbsoluteUri,
-                                                                      task.Exception.InnerException.Message));
-                                    }
+                                    displayHttpRequestError(task.Exception, errId);
                                 }
-                                if (!task.Result.IsSuccessStatusCode)
+                                else if (!task.Result.IsSuccessStatusCode)
                                 {
-                                    MessageBox.Show(String.Format("GET {0} failed!\n{2} ({1})",
-                                                                    controlMessageUri.AbsoluteUri,
-                                                                    Convert.ToInt16(task.Result.StatusCode),
-                                                                    task.Result.ReasonPhrase));
+                                    displayHttpResponseError(task.Result, errId);
                                 }
                                 else if (task.Result.StatusCode == HttpStatusCode.NoContent)
                                 {
@@ -448,29 +397,15 @@
                     Client.PostAsync(transferUri, new StringContent("Transfer requested at " + DateTime.Now)).ContinueWith(
                         task =>
                             {
+                                var errId = String.Format("POST {0} failed!", transferUri.AbsoluteUri);
                                 if (task.Exception != null)
                                 {
                                     UpdateUI(false);
-                                    if (task.Exception.InnerException is HttpRequestException)
-                                    {
-                                        MessageBox.Show(String.Format("POST {0} failed!\nError: {1}\n{2}",
-                                                                      transferUri.AbsoluteUri,
-                                                                      task.Exception.InnerException.Message,
-                                                                      task.Exception.InnerException.InnerException.Message));
-                                    }
-                                    else
-                                    {
-                                        MessageBox.Show(String.Format("POST {0} failed!\nError: {1}",
-                                                                      transferUri.AbsoluteUri,
-                                                                      task.Exception.InnerException.Message));
-                                    }
+                                    displayHttpRequestError(task.Exception, errId);
                                 }
                                 else if (!task.Result.IsSuccessStatusCode)
                                 {
-                                    MessageBox.Show(String.Format("POST {0} failed!\n{2} ({1})",
-                                                                  transferUri.AbsoluteUri,
-                                                                  Convert.ToInt16(task.Result.StatusCode),
-                                                                  task.Result.ReasonPhrase));
+                                    displayHttpResponseError(task.Result, errId);
                                 }
                             });
                 }
