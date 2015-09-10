@@ -168,7 +168,7 @@
                             System.Text.Encoding.ASCII.GetBytes(string.Format("{0}:{1}",
                                                                               Settings.Default.Username,
                                                                               Settings.Default.Password)));
-                    Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("basic", param);
+                    Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", param);
                 }
             }
             catch (UriFormatException)
