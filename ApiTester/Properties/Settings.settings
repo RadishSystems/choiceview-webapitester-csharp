@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ApiAddress" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">cvnet2.radishsystems.com</Value>
+      <Value Profile="(Default)">cvweb.radishsystems.com</Value>
     </Setting>
     <Setting Name="SecureTransport" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">True</Value>
@@ -12,7 +12,7 @@
       <Value Profile="(Default)">demo</Value>
     </Setting>
     <Setting Name="Password" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">radisH1!</Value>
+      <Value Profile="(Default)">Rad!sh12</Value>
     </Setting>
   </Settings>
 </SettingsFile>
